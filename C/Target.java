@@ -216,8 +216,10 @@ class Op extends Code {
                  break;
       case '=' : r.setBool(x.get() == y.get());
                  break;
-      case '!' : r.setBool( !y.get() );
+      case '!' : r.setBool( !y.getBool() );
                  break;
+      case '%' : r.set( x.get() % y.get() );
+                 break;    
     }
     return next.run(mem);
   }

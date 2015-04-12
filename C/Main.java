@@ -9,7 +9,7 @@ class Main {
                                  new Assign("i", new Plus(new Var("i"), new Int(1))))),
                new Print(new Var("t")))));
     */
-    Stmt s = notTest();
+    Stmt s = evenTest();
 
     System.out.println("Complete program is:");
     s.print(4);
@@ -32,9 +32,6 @@ class Main {
     } 
 
     System.out.println("Done!");
-    
-
-    multTest();
   }
 
   public static Stmt multTest() {
@@ -50,8 +47,26 @@ class Main {
 
   public static Stmt notTest() {
     Stmt s
-       = new Seq(new Assign("t", new Not(true)),
-                 new Print(new Var("t")));
+       = new If(new Not( new LT(new Int(1), new Int(2))),
+                new Print(new Int(0)),
+                new Print(new Int(42)));
     return s;
+  }
+
+  public static Stmt lTETest() {
+      Stmt s
+         = new If(new Not( new LTE(new Int(1), new Int(1))),
+                  new Print(new Int(0)),
+                  new Print(new Int(42)));
+      return s;
+  }
+
+  public static Stmt evenTest() {
+    Stmt s
+       = new If(new Even(new Int(2)),
+                new Print(new Int(128)),
+                new Print(new Int(256)));
+    return s;
+
   }
 }

@@ -80,6 +80,22 @@ class Mult extends IExpr {
   }
 }
 
+class Mod extends IExpr {
+  private IExpr l, r;
+  Mod(IExpr l, IExpr r) { this.l = l; this.r = r; }
+
+  int    eval(Memory mem) { return l.eval(mem) % r.eval(mem); }
+  String show() { return "(" + l.show() + " % " + r.show() + ")"; }
+
+  Code compileTo(Reg reg, Code next) {
+    Reg tmp = new Reg();
+    return l.compileTo(tmp,
+           r.compileTo(reg,
+           new Op(reg, tmp, '%', reg, next)));
+  }
+  
+}
+
 //____________________________________________________________________________
 // BExpr ::= IExpr < IExpr
 //        |  IExpr == IExpr
@@ -90,19 +106,59 @@ abstract class BExpr {
   abstract Code compileTo(Reg reg, Code next);
 }
 
-class LT extends BExpr {
-  private IExpr l, r;
-  LT(IExpr l, IExpr r) { this.l = l; this.r = r; }
+class Bool extends BExpr {
+  private int flag;
+  Bool(int flag) { this.flag = flag; }
 
-  boolean eval(Memory mem) { return l.eval(mem) < r.eval(mem); }
-  String show()  { return "(" + l.show() + " < " + r.show() + ")"; }
+  boolean eval(Memory mem) { 
+     if( 0 == flag) return false;
+    return true;
+  }
+
+  String show() { 
+    if( 0 == flag) {
+        return "false";
+    }
+    return "true";
+  }
 
   Code compileTo(Reg reg, Code next) {
-    Reg tmp = new Reg();
-    return l.compileTo(tmp,
-           r.compileTo(reg,
-           new Op(reg, tmp, '<', reg, next)));
+    return new Immed(reg, flag, next);
   }
+}
+
+class LTE extends BExpr {
+  private IExpr l, r;
+  LTE(IExpr l, IExpr r) { this.l = l; this.r = r; }
+
+  boolean eval(Memory mem) { return l.eval(mem) <= r.eval(mem); }
+  String show()  { return "(" + l.show() + " <= " + r.show() + ")"; }
+
+  Code compileTo(Reg reg, Code next) {
+    Reg temp = new Reg();
+    return l.compileTo(temp,
+           r.compileTo(reg,
+           new Op(reg, temp, '=', reg,
+               l.compileTo(temp,
+               r.compileTo(reg,
+               new Op(reg, temp, '<', reg, next))))));
+  }
+}
+
+class LT extends BExpr {
+    private IExpr l, r;
+    LT(IExpr l, IExpr r) { this.l = l; this.r = r; }
+
+    boolean eval(Memory mem) { return l.eval(mem) < r.eval(mem); }
+    String show()  { return "(" + l.show() + " < " + r.show() + ")"; }
+
+    Code compileTo(Reg reg, Code next) {
+      Reg tmp = new Reg();
+      return l.compileTo(tmp,
+             r.compileTo(reg,
+             new Op(reg, tmp, '<', reg, next)));
+    }
+
 }
 
 class EqEq extends BExpr {
@@ -123,12 +179,53 @@ class EqEq extends BExpr {
 class Not extends BExpr {
     private BExpr e;
     Not(BExpr e) { this.e = e; }
-
+    
+    /**
+     * negate the return value of eval method
+     */
     boolean eval(Memory mem) { return !e.eval(mem); }
+    /**
+     * display the not construct as a function call
+     */
     String show() { return "not (" + e.show() + ")"; }
-
+    /**
+     * call compileTo method passing in null for second arg since
+     * not is a unary operator
+     */
     Code compileTo(Reg reg, Code next) {
-        return e.compileTo(reg, new Op(reg, null, "!", reg, next));
+        return e.compileTo(reg, new Op(reg, null, '!', reg, next));
+    }
+}
+
+class Even extends BExpr {
+    private IExpr v;
+    Even(IExpr v) { this.v = v; }
+    
+    /**
+     * checking if the value of v is even with mod operator
+     */
+    boolean eval(Memory mem) { 
+        if( 0 == v.eval(mem) % 2 ) {
+            return true;
+        }
+        return false;
+    }
+    /**
+     * display the not construct as a function call
+     */
+    String show() { return "even (" + v.show() + ")"; }
+    /**
+     * call compileTo method passing in null for second arg since
+     * not is a unary operator
+     */
+    Code compileTo(Reg reg, Code next) {
+        Int two = new Int(2);
+        Int zero = new Int(0);
+        Reg temp = new Reg();
+
+        return v.compileTo(reg,
+               two.compileTo(temp, new Op(reg, temp, '%', reg,
+               zero.compileTo(temp, new Op(reg, temp, '=' , reg, next)))));
     }
 }
 
