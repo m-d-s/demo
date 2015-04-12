@@ -36,6 +36,13 @@ class Minus extends IExpr {
   String show() { return "(" + l.show() + " - " + r.show() + ")"; }
 }
 
+class Mult extends IExpr {
+  private IExpr l, r;
+  Mult(IExpr l, IExpr r) { this.l = l; this.r = r; }
+
+  String show() { return "(" + l.show() + " * " + r.show() + ")"; }
+}
+
 //____________________________________________________________________________
 // BExpr ::= IExpr < IExpr
 //        |  IExpr == IExpr

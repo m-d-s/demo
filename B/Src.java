@@ -62,6 +62,21 @@ class Minus extends IExpr {
   }
 }
 
+class Mult extends IExpr {
+  private IExpr l, r;
+  Minus(IExpr l, IExpr r) { this.l = l; this.r = r; }
+
+  int    eval(Memory mem) { return l.eval(mem) * r.eval(mem); }
+  String show() { return "(" + l.show() + " * " + r.show() + ")"; }
+
+  void bcgen(Bytecode b) {
+    l.bcgen(b);
+    r.bcgen(b);
+    b.mult();
+  }
+}
+
+
 //____________________________________________________________________________
 // BExpr ::= IExpr < IExpr
 //        |  IExpr == IExpr

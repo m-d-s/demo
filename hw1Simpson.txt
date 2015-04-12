@@ -1,0 +1,76 @@
+Name: Michael Simpson
+Date: 04-11-15
+Course: CS322
+Instructor: Jones
+Assignment: #1
+
+
+1) Modify the DemoComp compiler to support the following constructs
+
+    ***** All work was done in the C directory of DemoComp*****
+
+    -Multiplication
+        
+        I began by adding a 'Mult' class in Src.java that extends the 'IExpr' class.
+        This class closely follows the pattern of the other 'IExpr' subclasses with only
+        minor modifications made to reflect a multiplication operation where nessecary. 
+            //Added to Src.java 
+            class Mult extends IExpr {
+              private IExpr l, r;
+              Mult(IExpr l, IExpr r) { this.l = l; this.r = r; }
+              
+              /**
+               * multiply the return values of eval as called from the left and
+               * right operands and return the result of the operation
+               */
+              int    eval(Memory mem) { return l.eval(mem) * r.eval(mem); }
+              
+              /**
+               * print the operation as multiplication show with an asterisk
+               */
+              String show() { return "(" + l.show() + " * " + r.show() + ")"; }
+              
+              /**
+               * Construct stack frame of multiplication operator
+               * to compile source code into target representation 
+               */  
+              Code compileTo(Reg reg, Code next) {
+                Reg tmp = new Reg();
+                return l.compileTo(tmp,
+                       r.compileTo(reg,
+                       new Op(reg, tmp, '*', reg, next)));
+              }
+            }   
+
+        I also modified the method  "run" inside the Op class within Target.java 
+        to include a case for the added  multiplication operator. This adds a new 
+        instruction to the "assembly" that will evaluate multiplication operation
+        and allow the translated expression to be evaluated in the target language.
+  
+            //Added to Target.java, Op class, within "run" method
+            case '*' : r.set(x.get() * y.get());
+                       break;
+ 
+        These changes were sufficient for being able to implement a multiplication construct
+        for the DemoComp complier. To test that my alterations were correct, I went into 
+        Main.java and created a new function. This function contained a copy of the ast and 
+        copmilation code that was already present in this file. I altered the abstact syntax
+        tree to perform a Mult operation and also altered a few other values.
+
+            /**
+             * An AST that I used for testing
+             */
+            Stmt s
+               = new Seq(new Assign("t", new Int(1)),
+                 new Seq(new Assign("i", new Int(1)),
+                 new Seq(new While(new LT(new Var("i"), new Int(5)),
+                                   new Seq(new Assign("t", new Mult(new Var("t"), new Var("i"))),
+                                           new Assign("i", new Plus(new Var("i"), new Int(1))))),
+                         new Print(new Var("t")))));
+
+        This test calculates four factorial. The result of this program correctly printed 
+        the value 24 as the output of interpertation and compilation. I also played around with 
+        changing the AST to ensure the correctness of my code, and the values continued to
+        print as expected.
+
+        

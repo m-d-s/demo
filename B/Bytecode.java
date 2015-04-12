@@ -53,7 +53,7 @@ class Bytecode {
   static final int JNE   = 9;    // JNE lab
   static final int JMP   = 10;   // JMP lab
   static final int STOP  = 11;   // STOP
-
+  static final int MULT   = 12;   // MULT
   // Individual bytecode instructions: -----------------------
   public void ldc(int n)        { emit(LDC);  emit(n); }
   public void load(String var)  { emit(LOAD);  emit(location(var)); }
@@ -61,6 +61,7 @@ class Bytecode {
 
   public void add()             { emit(ADD); }
   public void sub()             { emit(SUB); }
+  public void mult()            { emit(MULT); }  
 
   public void jl(int lab)       { emit(JL);  emit(lab); }
   public void jnl(int lab)      { emit(JNL); emit(lab); }
@@ -90,6 +91,9 @@ class Bytecode {
                      continue;
 
         case SUB   : System.out.println("SUB");
+                     continue;
+
+        case MULT  : System.out.println("MULT");
                      continue;
 
         case JL    : System.out.println("JL    " + labels[prog[pc++]]);
@@ -138,6 +142,8 @@ class Bytecode {
                      continue;
 
         case ADD   : push(pop() + pop());
+                     continue;
+        case MULT  : push(pop() * pop());
                      continue;
 
         case SUB   : { int r = pop();

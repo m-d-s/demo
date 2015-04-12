@@ -65,6 +65,21 @@ class Minus extends IExpr {
   }
 }
 
+class Mult extends IExpr {
+  private IExpr l, r;
+  Mult(IExpr l, IExpr r) { this.l = l; this.r = r; }
+
+  int    eval(Memory mem) { return l.eval(mem) * r.eval(mem); }
+  String show() { return "(" + l.show() + " * " + r.show() + ")"; }
+
+  Code compileTo(Reg reg, Code next) {
+    Reg tmp = new Reg();
+    return l.compileTo(tmp,
+           r.compileTo(reg,
+           new Op(reg, tmp, '*', reg, next)));
+  }
+}
+
 //____________________________________________________________________________
 // BExpr ::= IExpr < IExpr
 //        |  IExpr == IExpr
@@ -103,6 +118,18 @@ class EqEq extends BExpr {
            r.compileTo(reg,
            new Op(reg, tmp, '=', reg, next)));
   }
+}
+
+class Not extends BExpr {
+    private BExpr e;
+    Not(BExpr e) { this.e = e; }
+
+    boolean eval(Memory mem) { return !e.eval(mem); }
+    String show() { return "not (" + e.show() + ")"; }
+
+    Code compileTo(Reg reg, Code next) {
+        return e.compileTo(reg, new Op(reg, null, "!", reg, next));
+    }
 }
 
 //____________________________________________________________________________
