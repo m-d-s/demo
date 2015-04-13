@@ -69,7 +69,7 @@ Assignment: #1
                          new Print(new Var("t")))));
 
         This test calculates four factorial. The result of this program correctly printed 
-        the value 24 as the output of interpertation and compilation. I also played around with 
+        the value 24 as the output of source and target evaluation. I also played around with 
         changing the AST to ensure the correctness of my code, and the values continued to
         print as expected.
 
@@ -115,8 +115,7 @@ Assignment: #1
    
         This next part wasn't strictly necessary, but it made sense to add a Bool non
         terminal to the grammar so I went ahead and did so. It stores an integer flag,
-        and interperets, prints, and compiles boolean values based upon the integer
-        value
+        evaluates, prints, and compiles boolean values based upon the integer value.
 
             //Added to Src.java
             class Bool extends BExpr {
@@ -152,9 +151,9 @@ Assignment: #1
            }
 
         To test the not construct I did as before and created some AST structures that I
-        could then run and evaluate the returned interpereted and compiled values. This
-        test simply reads as if(not(true)){ print 0;} else {print 42;}. Upon running the code,
-        it correctly prints the value 42 both through interperetation and compilation
+        could then run and inspect the source and target evaluations. This test simply reads,
+        if(not(true)){ print 0;} else {print 42;}. Upon running the code, it correctly prints 
+        the value 42 both through source and target evaluation.
 
             //An AST to test the Not construct
                 Stmt s
@@ -164,6 +163,53 @@ Assignment: #1
  
 
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    -LTE
+
+        I actually left this case for last. It seemed like it would be trivial if just 
+        extended the target language, but it took me a bit of experimenting with the 
+        other constructs before a solution became more clear. Instead of adding any
+        new instruction to the target, I instead recycled the subtraction and eqeq 
+        operators.
+
+            //Added to Src.java
+            class LTE extends BExpr {
+              private IExpr l, r;
+              LTE(IExpr l, IExpr r) { this.l = l; this.r = r; }
+
+              /**
+               * evaluating the expression in the source language
+               */
+              boolean eval(Memory mem) { return l.eval(mem) <= r.eval(mem); }
+              /**
+               * printing the expression as a binary operator
+               */
+              String show()  { return "(" + l.show() + " <= " + r.show() + ")"; }
+
+              /**
+               * Recycling existing target instructions to emulate the behavior
+               * of a less than or equal operator
+               */
+              Code compileTo(Reg reg, Code next) {
+                Reg temp = new Reg();
+                Reg mid = new Reg();
+                return l.compileTo(reg,
+                       r.compileTo(temp,
+                           new Op(mid, reg, '-', temp, 
+                           new Immed(temp, 1,
+                               new Op(reg, mid, '<', temp, next)))));
+             }
+            }
+
+        Since I did not extend the target language, I did not make any modifications to 
+        Target.java. I did however do some testing. Here is an example AST that correctly
+        prints output of 0 from both source and target evaluation.
+
+             Stmt s
+                = new If(new Not( new LTE(new Int(3), new Int(2))),
+                         new Print(new Int(0)),
+                         new Print(new Int(42)));
+          
    
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  
@@ -219,7 +265,7 @@ Assignment: #1
                        break;    
 
         This is an example AST that I used for testing, which correctly prints the value
-        '128' as a result of both interperetation and compilation.
+        '128' as a result of both source and target evaluation.
 
             Stmt s
                = new If(new Even(new Int(2)),
@@ -272,7 +318,7 @@ Assignment: #1
         I have been getting more creative with my testing (or at least more lengthy).
         Here is an example AST that I used to test the Half construct. It doesn't do
         anything extremely interesting, but it does correctly print the values 3, 2,
-        and 1 as a result of both interperetation and compilation.
+        and 1 as a result of both source and target evaluation.
 
             Stmt s
                = new Seq(new Assign("i", new Int(3)),
@@ -281,4 +327,81 @@ Assignment: #1
                             new Seq(new Assign("k", new Half(new Var("k"))),
                             new Seq(new Assign("i", new Minus(new Var("i"), new Int(1))),
                                     new Print(new Var("i")))))));
-          
+
+################################################################################
+
+2) Program Structure
+
+        ***********************************************************
+        ***** Abstract Syntax Tree Attached to Seperate Sheet *****
+        ***********************************************************
+
+        -Code
+            class Main {
+              public static void main(String[] args) {
+                Stmt s = q2();
+
+                System.out.println("Complete program is:");
+                s.print(4);
+
+                System.out.println("Running on an empty memory:");
+                Memory mem = new Memory();
+                s.exec(mem);
+
+                System.out.println("Compiling:");
+                Program p     = new Program();
+                Block   entry = p.block(s.compile(p, new Stop()));
+                System.out.println("Entry point is at " + entry);
+                p.show();
+
+                System.out.println("Running on an empty memory:");
+                mem      = new Memory();
+                Block pc = entry;
+                while (pc!=null)  {
+                  pc = pc.code().run(mem);
+                } 
+
+                System.out.println("Done!");
+              }
+
+              public static Stmt q2() {
+                Stmt s
+                   = new Seq( new Assign("t", new Int(0)),
+                     new Seq( new Assign("x", new Int(6)),
+                     new Seq( new Assign("y", new Int(7)),
+                     new Seq( new While( new LT( new Int(0), new Var("x")),
+                              new Seq( new If( new Not( new Even( new Var("x"))),
+                                       new Assign( "t", new Plus( new Var("t"), new Var("y"))),
+                                       new Assign( "t", new Var("t"))),
+                              new Seq( new Assign( "y", new Plus( new Var("y"), new Var("y"))),
+                              new Assign( "x", new  Half( new Var( "x")))))),
+                     new Print( new Var("t"))))));
+                return s;          
+              }
+            }
+
+        The algorithm expressed by the AST multiplies x and y.
+
+################################################################################
+
+3) Optimization Observations
+
+        After analyzing the target language output from the program that was constructed
+        in question #2, the first glaring optimization was inefficientregister use.  
+        It may not have been too bad for this particular example (though I am positive 
+        the algorithm could have executed properly using less than 16 registers), but
+        for programs of a larger scale the register usage would be astronomical.
+        Resgisters are extremely fast memory storage locations on the CPU. However,
+        this quick access comes at a high monitary cost in comparison to memory
+        lower down the hierarchy. Optimizing register usage in this instance would
+        be an example of space optimization.
+
+        Another thing that I noticed was that when an assign operation instruction gets
+        executed the result of the operation gets stored in a register, which then 
+        gets stored into the memory location of the variable being assigned to. 
+        If the result of the operation just directly got stored into the variables 
+        memory location, it could reduce the cost of assignment by one instruction.
+
+        
+
+        

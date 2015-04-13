@@ -158,18 +158,28 @@ class LTE extends BExpr {
   private IExpr l, r;
   LTE(IExpr l, IExpr r) { this.l = l; this.r = r; }
 
+  /**
+   * evaluating the expression in the source language
+   */
   boolean eval(Memory mem) { return l.eval(mem) <= r.eval(mem); }
+  /**
+   * printing the expression as a binary operator
+   */
   String show()  { return "(" + l.show() + " <= " + r.show() + ")"; }
 
+  /**
+   * Recycling existing target instructions to emulate the behavior
+   * of a less than or equal operator
+   */
   Code compileTo(Reg reg, Code next) {
     Reg temp = new Reg();
-    return l.compileTo(temp,
-           r.compileTo(reg,
-           new Op(reg, temp, '=', reg,
-               l.compileTo(temp,
-               r.compileTo(reg,
-               new Op(reg, temp, '<', reg, next))))));
-  }
+    Reg mid = new Reg();
+    return l.compileTo(reg,
+           r.compileTo(temp,
+               new Op(mid, reg, '-', temp, 
+               new Immed(temp, 1,
+                   new Op(reg, mid, '<', temp, next)))));
+ }
 }
 
 class LT extends BExpr {

@@ -9,7 +9,7 @@ class Main {
                                  new Assign("i", new Plus(new Var("i"), new Int(1))))),
                new Print(new Var("t")))));
     */
-    Stmt s = halfTest();
+    Stmt s = q2();
 
     System.out.println("Complete program is:");
     s.print(4);
@@ -80,10 +80,20 @@ class Main {
                             new Print(new Var("i")))))));
       return s;                            
   }
-
+  
   public static Stmt q2() {
     Stmt s
-       = 
+       = new Seq( new Assign("t", new Int(0)),
+         new Seq( new Assign("x", new Int(6)),
+         new Seq( new Assign("y", new Int(7)),
+         new Seq( new While( new LT( new Int(0), new Var("x")),
+                  new Seq( new If( new Not( new Even( new Var("x"))),
+                           new Assign( "t", new Plus( new Var("t"), new Var("y"))),
+                           new Assign( "t", new Var("t"))),
+                  new Seq( new Assign( "y", new Plus( new Var("y"), new Var("y"))),
+                  new Assign( "x", new  Half( new Var( "x")))))),
+         new Print( new Var("t"))))));
+    return s;          
   }
 }
 
