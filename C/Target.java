@@ -220,6 +220,8 @@ class Op extends Code {
                  break;
       case '%' : r.set( x.get() % y.get() );
                  break;    
+      case '/' : r.set( x.get() / y.get() );
+                 break;
     }
     return next.run(mem);
   }

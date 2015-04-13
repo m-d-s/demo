@@ -96,6 +96,33 @@ class Mod extends IExpr {
   
 }
 
+class Half extends IExpr {
+    private IExpr p;
+    Half(IExpr p) { this.p = p; }
+    
+    /**
+     * halving the return value of p.eval
+     */
+    int eval(Memory mem) { 
+       return p.eval(mem) / 2;
+    }
+    /**
+     * display the half construct as a function call
+     */
+    String show() { return "half (" + p.show() + ")"; }
+    /**
+     * call compileTo method passing in abstract syntax
+     * structure of target language
+     */
+    Code compileTo(Reg reg, Code next) {
+        Reg lit = new Reg();
+
+        return p.compileTo(reg,
+                           new Immed(lit, 2, 
+                           new Op(reg, reg, '/', lit, next)));
+    }
+}
+
 //____________________________________________________________________________
 // BExpr ::= IExpr < IExpr
 //        |  IExpr == IExpr
@@ -215,17 +242,18 @@ class Even extends BExpr {
      */
     String show() { return "even (" + v.show() + ")"; }
     /**
-     * call compileTo method passing in null for second arg since
-     * not is a unary operator
+     * call compileTo method passing in abstract syntax
+     * structure of target language
      */
     Code compileTo(Reg reg, Code next) {
-        Int two = new Int(2);
-        Int zero = new Int(0);
+        Reg lit = new Reg();
         Reg temp = new Reg();
 
         return v.compileTo(reg,
-               two.compileTo(temp, new Op(reg, temp, '%', reg,
-               zero.compileTo(temp, new Op(reg, temp, '=' , reg, next)))));
+                           new Immed(lit, 2, 
+                           new Op(reg, reg, '%', lit, 
+                           new Immed(lit, 0,
+                           new Op(reg, reg, '=', lit, next))))); 
     }
 }
 

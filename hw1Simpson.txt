@@ -168,13 +168,13 @@ Assignment: #1
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  
     -Even
+        
+        Creating the even construct took me a few tries to get right. I had a
+        few other solutions that worked, but this seemed like the most correct
+        solution to me. Eval and display were fairly self explanitory, but 
+        getting the compile to method to how it is here took a good amount 
+        of inspection into exactly how the target language really works.
 
-        Constructing the pattern for an even operator was not at all difficult since it
-        shared many characteristics with the Not operator. The biggest difference was that
-        it had an IExpr field rather than a BExpr, and that the logic to emulate the expected
-        behavior was slightly more involved.
-            
-            //Added to Src.java
             class Even extends BExpr {
                 private IExpr v;
                 Even(IExpr v) { this.v = v; }
@@ -188,17 +188,97 @@ Assignment: #1
                     }
                     return false;
                 }
+
                 /**
                  * display the not construct as a function call
                  */
                 String show() { return "even (" + v.show() + ")"; }
+
                 /**
-                 * call compileTo method passing in null for second arg since
-                 * not is a unary operator
+                 * call compileTo method passing in abstract syntax
+                 * structure of target language
                  */
                 Code compileTo(Reg reg, Code next) {
-                    return v.compileTo(reg, new Op(reg, null, '%', reg, next));
+                    Reg lit = new Reg();
+                    Reg temp = new Reg();
+
+                    return v.compileTo(reg,
+                                       new Immed(lit, 2, 
+                                       new Op(reg, reg, '%', lit, 
+                                           new Immed(lit, 0,
+                                           new Op(reg, reg, '=', lit, next))))); 
                 }
             }
 
-        Again, a new case needed to be added to 
+        The only thing I added to the target language was a mod operator instruction.
+        This seemed like the cleanest solution to the problem that required the least
+        addition to either language.
+            
+            //Addded to Op class, "run" method, in Target.java
+            case '%' : r.set( x.get() % y.get() );
+                       break;    
+
+        This is an example AST that I used for testing, which correctly prints the value
+        '128' as a result of both interperetation and compilation.
+
+            Stmt s
+               = new If(new Even(new Int(2)),
+                        new Print(new Int(128)),
+                        new Print(new Int(256)));
+ 
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+    -Half
+
+        The Half construct was dead easy after putting the time into Even. Much of the
+        pattern was the same as Even, and in fact it is more simplified. I suppose the
+        biggest difference is that Half is a subclass of IExpr rather than BExpr.
+            
+            //Added to Src.java
+            class Half extends IExpr {
+                private IExpr p;
+                Half(IExpr p) { this.p = p; }
+                
+                /**
+                 * halving the return value of p.eval
+                 */
+                int eval(Memory mem) { 
+                   return p.eval(mem) / 2;
+                }
+                /**
+                 * display the half construct as a function call
+                 */
+                String show() { return "half (" + p.show() + ")"; }
+                /**
+                 * call compileTo method passing in abstract syntax
+                 * structure of target language
+                 */
+                Code compileTo(Reg reg, Code next) {
+                    Reg lit = new Reg();
+
+                    return p.compileTo(reg,
+                                       new Immed(lit, 2, 
+                                       new Op(reg, reg, '/', lit, next)));
+                }
+            }
+       
+        Again, I added an instruction to the target language to support this
+        functionality.
+            
+            //Added to Op class, "run" method, within Target.java
+            case '/' : r.set( x.get() / y.get() );
+                       break;
+
+        I have been getting more creative with my testing (or at least more lengthy).
+        Here is an example AST that I used to test the Half construct. It doesn't do
+        anything extremely interesting, but it does correctly print the values 3, 2,
+        and 1 as a result of both interperetation and compilation.
+
+            Stmt s
+               = new Seq(new Assign("i", new Int(3)),
+                 new Seq(new Assign("k", new Int(20)),
+                 new While( new LT(new Int(4), new Var("k")),
+                            new Seq(new Assign("k", new Half(new Var("k"))),
+                            new Seq(new Assign("i", new Minus(new Var("i"), new Int(1))),
+                                    new Print(new Var("i")))))));
+          
