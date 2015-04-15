@@ -216,8 +216,6 @@ class Op extends Code {
                  break;
       case '=' : r.setBool(x.get() == y.get());
                  break;
-      case '!' : r.setBool( !y.getBool() );
-                 break;
       case '%' : r.set( x.get() % y.get() );
                  break;    
       case '/' : r.set( x.get() / y.get() );
@@ -225,6 +223,22 @@ class Op extends Code {
     }
     return next.run(mem);
   }
+}
+
+class Neg extends Code {
+    private Reg reg;
+    private Code next;
+    Neg(Reg reg, Code next) { this.reg = reg; this.next = next; }
+
+    void print() {
+        System.out.println( "  " + reg + " <- !"  + reg );
+        next.print();
+    }
+
+    Block run(Memory mem) {
+        reg.setBool( !reg.getBool() );
+        return next.run(mem);
+    }
 }
 
 class PCode extends Code {

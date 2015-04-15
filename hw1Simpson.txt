@@ -78,9 +78,12 @@ Assignment: #1
     -Not
 
         This case was somewhat more involved than multiplication, mainly because there were
-        no unary boolean expressions from which I could base a pattern. The only major difference
-        was in the compile to method where null gets passed in as the second argument, the rest
-        was fairly similar.
+        no unary boolean expressions from which I could base a pattern. Since there was no
+        existing target class that had the behavior I needed, I created a new one. After 
+        creating the 'Neg' class for the target language, I went back to the source and 
+        just created a Neg object rather than an Op. I realize it could have been a good 
+        idea to abstract out a unary opration class, and if I were designing a compiler
+        on a larger scale I may have opted to do so.
 
             //Added to Src.java 
             class Not extends BExpr {
@@ -100,68 +103,37 @@ Assignment: #1
                  * not is a unary operator
                  */
                 Code compileTo(Reg reg, Code next) {
-                    return e.compileTo(reg, new Op(reg, null, '!', reg, next));
+                    return e.compileTo(reg, new Neg(reg, next));
                 }
             }
 
-        Again this construct also needed an addition to the target code Op class so that
-        the instructions could be translated during compilation. Since there only one 
-        register in action it loads the bool value, negates that value, and then stores
-        the updated value back to the same register.
+            //Added to Target.java
+            class Neg extends Code {
+                private Reg reg;
+                private Code next;
+                Neg(Reg reg, Code next) { this.reg = reg; this.next = next; }
 
-            //Added to Target.java, Op class, witin "run" method
-            case '!' : r.setBool( !y.getBool() );
-                       break;
-   
-        This next part wasn't strictly necessary, but it made sense to add a Bool non
-        terminal to the grammar so I went ahead and did so. It stores an integer flag,
-        evaluates, prints, and compiles boolean values based upon the integer value.
+                void print() {
+                    System.out.println( "  " + reg + " <- !"  + reg );
+                    next.print();
+                }
 
-            //Added to Src.java
-            class Bool extends BExpr {
-                private int flag;
-                Bool(int flag) { this.flag = flag; }
-               
-                /**
-                 * Zero value evaluates to false, any other value evaluates to true
-                 */ 
-                boolean eval(Memory mem) { 
-                   if( 0 == flag) {
-                      return false;
-                  }
-                  return true;
+                Block run(Memory mem) {
+                    reg.setBool( !reg.getBool() );
+                    return next.run(mem);
                 }
-                
-                /**
-                 * Zero value prints false, any other value prints true
-                 */  
-                String show() { 
-                  if( 0 == flag) {
-                      return "false";
-                  }
-                  return "true";
-                }
-                
-                 /**
-                 * assigns the flag value to a register
-                 */ 
-                Code compileTo(Reg reg, Code next) {
-                  return new Immed(reg, flag, next);
-                }
-           }
+            }
 
         To test the not construct I did as before and created some AST structures that I
-        could then run and inspect the source and target evaluations. This test simply reads,
-        if(not(true)){ print 0;} else {print 42;}. Upon running the code, it correctly prints 
-        the value 42 both through source and target evaluation.
-
-            //An AST to test the Not construct
-                Stmt s
-                    = new If(new Not( new Bool(1)),
-                      new Print(new Int(0)),
-                      new Print(new Int(42)));
- 
-
+        could then run and inspect the source and target evaluations. In this particular
+        test I chained two negations together to evaluate the original boolean value. This
+        test successfully printed the value 1024
+            
+            Stmt s
+               = new If(new Not( new Not(new EqEq(new Int(1), new Int(2)))),
+                 new Print(new Int(256)),
+                 new Print(new Int(1024)));
+  
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     -LTE

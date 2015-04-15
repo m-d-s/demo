@@ -9,7 +9,7 @@ class Main {
                                  new Assign("i", new Plus(new Var("i"), new Int(1))))),
                new Print(new Var("t")))));
     */
-    Stmt s = q2();
+    Stmt s = notTest();
 
     System.out.println("Complete program is:");
     s.print(4);
@@ -47,9 +47,9 @@ class Main {
 
   public static Stmt notTest() {
     Stmt s
-       = new If(new Not( new LT(new Int(1), new Int(2))),
-                new Print(new Int(0)),
-                new Print(new Int(42)));
+       = new If(new Not( new Not(new EqEq(new Int(1), new Int(2)))),
+                new Print(new Int(256)),
+                new Print(new Int(1024)));
     return s;
   }
 

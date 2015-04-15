@@ -230,7 +230,7 @@ class Not extends BExpr {
      * not is a unary operator
      */
     Code compileTo(Reg reg, Code next) {
-        return e.compileTo(reg, new Op(reg, null, '!', reg, next));
+        return e.compileTo(reg, new Neg(reg, next));
     }
 }
 
