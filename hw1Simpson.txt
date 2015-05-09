@@ -51,15 +51,13 @@ Assignment: #1
             case '*' : r.set(x.get() * y.get());
                        break;
  
-        These changes were sufficient for being able to implement a multiplication construct
-        for the DemoComp complier. To test that my alterations were correct, I went into 
-        Main.java and created a new function. This function contained a copy of the ast and 
-        copmilation code that was already present in this file. I altered the abstact syntax
-        tree to perform a Mult operation and also altered a few other values.
+        
+        Next I moved on to testing the multiplication construct that I just implemented.       
+        This test calculates four factorial (i.e. 1 x 2 x 3 x 4 = 24).The result of  
+        executing this program correctly printed the value 24 as the output of compilation
+        and interpretation.
 
-            /**
-             * An AST that I used for testing
-             */
+ 
             Stmt s
                = new Seq(new Assign("t", new Int(1)),
                  new Seq(new Assign("i", new Int(1)),
@@ -68,12 +66,7 @@ Assignment: #1
                                            new Assign("i", new Plus(new Var("i"), new Int(1))))),
                          new Print(new Var("t")))));
 
-        This test calculates four factorial. The result of this program correctly printed 
-        the value 24 as the output of source and target evaluation. I also played around with 
-        changing the AST to ensure the correctness of my code, and the values continued to
-        print as expected.
-
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     -Not
 
@@ -173,15 +166,24 @@ Assignment: #1
              }
             }
 
-        Since I did not extend the target language, I did not make any modifications to 
-        Target.java. I did however do some testing. Here is an example AST that correctly
-        prints output of 0 from both source and target evaluation.
-
-             Stmt s
-                = new If(new Not( new LTE(new Int(3), new Int(2))),
-                         new Print(new Int(0)),
-                         new Print(new Int(42)));
-          
+        To test that the LTE construct was correct, I created the following AST.
+        First it checks if the value of 2 is less than or equal to one and negates
+        that value. This should evaluate to true, which then checks to see if the
+        value of 3 is less than or equal to three. This should evaluate to true,
+        which should then check to see if the value of 1 is less than or equal to
+        2. This should evaluate to true and print the value 42. After running this
+        example, the value 42 was correctly printed as a result of both compilation
+        and interpretation.
+        
+            Stmt s
+               = new If(new Not( new LTE( new Int(2), new Int(1))),
+                        new If( new LTE( new Int(3), new Int(3)),
+                                new If( new LTE( new Int(1), new Int(2)),
+                                        new Print( new Int(42)),
+                                        new Print(new Int(0))),
+                                new Print(new Int(1))),
+                        new Print( new Int(2)));
+                  
    
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  
@@ -236,14 +238,20 @@ Assignment: #1
             case '%' : r.set( x.get() % y.get() );
                        break;    
 
-        This is an example AST that I used for testing, which correctly prints the value
-        '128' as a result of both source and target evaluation.
+        This is an example AST that I used for testing, the first if statement
+        checks to see if the value of 2 is even. Since this is true, it should
+        the execute the second if statement to see if the value of seven is even.
+        Since this is false, it should print the value fourty two. After compiling
+        and executing this program, the value 42 was correctly printed as a result
+        of compilation and interpretation.
 
             Stmt s
                = new If(new Even(new Int(2)),
-                        new Print(new Int(128)),
-                        new Print(new Int(256)));
- 
+                        new If( new Even(new Int(7)),
+                                new Print(new Int(512)),
+                                new Print(new Int(42))),
+                        new Print(new Int(0)));
+
      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  
     -Half
@@ -289,8 +297,9 @@ Assignment: #1
 
         I have been getting more creative with my testing (or at least more lengthy).
         Here is an example AST that I used to test the Half construct. It doesn't do
-        anything extremely interesting, but it does correctly print the values 3, 2,
-        and 1 as a result of both source and target evaluation.
+        anything extremely interesting, just loops while four is less than the value of 
+        'k' and displaying the value of 'i'. This AST correctly print the values 3, 2,
+        and 1 as a result of both compilation and interpretation. 
 
             Stmt s
                = new Seq(new Assign("i", new Int(3)),
@@ -299,6 +308,20 @@ Assignment: #1
                             new Seq(new Assign("k", new Half(new Var("k"))),
                             new Seq(new Assign("i", new Minus(new Var("i"), new Int(1))),
                                     new Print(new Var("i")))))));
+
+        To really make sure that it was doing exactly what I thought it should, I also 
+        made a quick AST that halved the values of 2 and seven, then 
+        prints both of those values respectively. I expected to see the value 1 printed
+        as a result of halving 2 and the value 3 as a result of halvling 7. After 
+        executing the code, the values 1 and 3 were correctly printed as a result of 
+        compilation and interpretation.
+
+            Stmt s 
+               =  new Seq( new Assign("i", new Half(new Int(2))),
+                  new Seq( new Assign("k", new Half(new Int(7))),
+                  new Seq( new Print(new Var("i")),
+                           new Print(new Var("k")))));
+         
 
 ################################################################################
 
@@ -359,14 +382,15 @@ Assignment: #1
 3) Optimization Observations
 
         After analyzing the target language output from the program that was constructed
-        in question #2, the first glaring optimization was inefficientregister use.  
+        in question #2, the glaring optimizations were mainly inefficient register useage.  
+        
         It may not have been too bad for this particular example (though I am positive 
         the algorithm could have executed properly using less than 16 registers), but
         for programs of a larger scale the register usage would be astronomical.
-        Resgisters are extremely fast memory storage locations on the CPU. However,
-        this quick access comes at a high monitary cost in comparison to memory
-        lower down the hierarchy. Optimizing register usage in this instance would
-        be an example of space optimization.
+        Instead of using a new register every time an operation was calclulated, or
+        a variable was assigned, ect, registers should get recycled. Registers are very
+        high speed memory on the CPU, but that speed comes at a cost. Not only is the idea
+        of having unlimited registers unrealistic, the monitary cost would be astronomical.
 
         Another thing that I noticed was that when an assign operation instruction gets
         executed the result of the operation gets stored in a register, which then 
@@ -374,6 +398,17 @@ Assignment: #1
         If the result of the operation just directly got stored into the variables 
         memory location, it could reduce the cost of assignment by one instruction.
 
-        
+        Another waste of registers that I noticed happened when the operation 
+        (y = y + y) occured. The two instances of y on the right hand side each got
+        loaded into a register. Then the sum of the two values got loaded into one of 
+        those two registers. An operation like this can be performed by only using one
+        register (i.e r0 <- r0 + r0).
+
+        Improving the way register usage is managed can greatly improve the speed of 
+        calculations. If you can maximize the amount of independant values that are
+        stored in your registers you will waste less time traveling down the memory 
+        hierarchy trying to retrieve the data you need for any given operation. The
+        further down the memory hierarchy you go, the slower processing speed will get.
+        Therefore the optimization pay off for managing registers well is very high.       
 
         

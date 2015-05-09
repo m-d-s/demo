@@ -9,7 +9,7 @@ class Main {
                                  new Assign("i", new Plus(new Var("i"), new Int(1))))),
                new Print(new Var("t")))));
     */
-    Stmt s = notTest();
+    Stmt s = halfTest2();
 
     System.out.println("Complete program is:");
     s.print(4);
@@ -55,15 +55,30 @@ class Main {
 
   public static Stmt lTETest() {
       Stmt s
-         = new If(new Not( new LTE(new Int(1), new Int(1))),
-                  new Print(new Int(0)),
-                  new Print(new Int(42)));
+         = new If(new Not( new LTE( new Int(2), new Int(1))),
+                  new If( new LTE( new Int(3), new Int(3)),
+                          new If( new LTE( new Int(1), new Int(2)),
+                                  new Print( new Int(42)),
+                                  new Print(new Int(0))),
+                          new Print(new Int(1))),
+                  new Print( new Int(2)));
       return s;
   }
 
   public static Stmt evenTest() {
     Stmt s
        = new If(new Even(new Int(2)),
+                new If( new Even(new Int(7)),
+                        new Print(new Int(512)),
+                        new Print(new Int(42))),
+                new Print(new Int(0)));
+    return s;
+
+  }
+
+   public static Stmt evenTest2() {
+    Stmt s
+       = new If(new Even(new Int(7)),
                 new Print(new Int(128)),
                 new Print(new Int(256)));
     return s;
@@ -79,6 +94,15 @@ class Main {
                     new Seq(new Assign("i", new Minus(new Var("i"), new Int(1))),
                             new Print(new Var("i")))))));
       return s;                            
+  }
+
+  public static Stmt halfTest2() {
+    Stmt s 
+       =  new Seq( new Assign("i", new Half(new Int(2))),
+          new Seq( new Assign("k", new Half(new Int(7))),
+          new Seq( new Print(new Var("i")),
+                   new Print(new Var("k")))));
+    return s;
   }
   
   public static Stmt q2() {
