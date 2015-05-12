@@ -1,0 +1,36 @@
+void main () {
+    int w = 1;
+    int x = 2;
+    int y = 2;
+
+    while(w < 10) {
+       int z = 0; 
+       while( z < w ){
+         x = f(x, z);
+         print h(g(z));
+         z = 1 + z;  
+       }
+       print x;
+       x = x * y;
+       w = w + 1;
+    }
+    print w;
+}
+
+int f (int a, int b) {
+   int x = a - b;
+   x = x * g(x);
+   return x;
+}
+
+int g(int x) {
+   return 2 * x - x;
+}
+
+int h(int x) {
+   if( x < 2) {
+       return 1;
+   } else {
+       return h(x-1) + h(x-2);
+   }
+}
