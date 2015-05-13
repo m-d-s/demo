@@ -137,4 +137,7 @@ public class Function extends Defn {
         }
         a.emit();
     }
+    
+    void compileGlobals(Assembly a, LocEnv globals, Frame f) {}
+  
 }

@@ -56,4 +56,18 @@ public class Globals extends Defn {
         // Nothing to do here, but this method is required
         // because Globals extends Defn.
     }
+
+    void compileGlobals(Assembly a, LocEnv globals, Frame f) {
+        int length = vars.length;
+        Expr[] exprArr = new Expr[length];
+
+        for(int i = 0; i < length; ++i) {
+            exprArr[i] = vars[i].getExpr(); 
+        }
+
+        for(int i = 0; i < length; ++i) {
+            exprArr[i].compileExpr(a,f);
+            f.store32(a, vars[i].name);  
+        }
+    }
 }

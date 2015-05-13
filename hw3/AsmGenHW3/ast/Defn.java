@@ -20,7 +20,7 @@ public abstract class Defn {
     public static void compile(String name, Defn[] defns) {
         LocEnv   globals = null;
         Assembly a       = Assembly.assembleToFile(name);
-
+        Formal [] forms = new Formal[0];
         a.emit();
         a.emit(".data");
         for (int i=0; i<defns.length; i++) {
@@ -29,6 +29,20 @@ public abstract class Defn {
 
         a.emit();
         a.emit(".text");
+
+        a.emit();
+        a.emit(".globl", a.name("initGlobals"));
+        a.emitLabel(a.name("initGlobals"));
+        a.emitPrologue(); 
+       
+        Frame f = new FunctionFrame(forms, globals);
+
+        for ( int i = 0; i < defns.length; ++i) {
+            defns[i].compileGlobals(a,globals,f);
+        }
+        
+        a.emitEpilogue();
+
         for (int i=0; i<defns.length; i++) {
             defns[i].compileFunction(a, globals);
         }
@@ -43,4 +57,6 @@ public abstract class Defn {
     /** Generate compiled code for a function.
      */
     abstract void compileFunction(Assembly a, LocEnv globals);
+
+    abstract void compileGlobals(Assembly a, LocEnv globals, Frame f);
 }

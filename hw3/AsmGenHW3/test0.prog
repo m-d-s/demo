@@ -1,5 +1,6 @@
 // Here is a very simple program.
-
+int i = 1;
 void main() {
+    print i;
     print 42;
 }

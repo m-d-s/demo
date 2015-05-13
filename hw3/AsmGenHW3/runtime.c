@@ -4,11 +4,11 @@
 //to XinitGlobals() when you have implemented support for
 //initializing global variables.
 
-//extern void XinitGlobals();
+extern void XinitGlobals();
 extern void Xmain();
 
 int main(int argc, char** argv) {
-//  XinitGlobals();
+  XinitGlobals();
     Xmain();
     return 0;
 }
