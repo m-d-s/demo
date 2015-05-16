@@ -60,6 +60,7 @@ public class InitVarIntro extends VarIntro {
         exp.compileExpr(a, f);
         f.allocLocal(a, name, f.free64());
     }
-
+    /** Return the initialization expression
+     */
     public Expr getExpr() { return exp; }
 }

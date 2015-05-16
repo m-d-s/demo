@@ -20,34 +20,39 @@ public abstract class Defn {
     public static void compile(String name, Defn[] defns) {
         LocEnv   globals = null;
         Assembly a       = Assembly.assembleToFile(name);
-        Formal [] forms = new Formal[0];
         a.emit();
         a.emit(".data");
         for (int i=0; i<defns.length; i++) {
             globals = defns[i].declareGlobals(a, globals);
         }
-
+          
         a.emit();
-        a.emit(".text");
-
-        a.emit();
-        a.emit(".globl", a.name("initGlobals"));
-        a.emitLabel(a.name("initGlobals"));
-        a.emitPrologue(); 
-       
-        Frame f = new FunctionFrame(forms, globals);
-
-        for ( int i = 0; i < defns.length; ++i) {
-            defns[i].compileGlobals(a,globals,f);
-        }
+        a.emit(".text");      
         
-        a.emitEpilogue();
+        // Compile a static function that will initialize global vars 
+        initGlobals(a, globals, defns);
 
         for (int i=0; i<defns.length; i++) {
             defns[i].compileFunction(a, globals);
         }
 
         a.close();
+    }
+
+    private static void initGlobals(Assembly a, LocEnv globals, Defn[] defns) {
+        a.emit();
+        a.emit(".globl", a.name("initGlobals"));
+        a.emitLabel(a.name("initGlobals"));
+        a.emitPrologue(); 
+
+        /** Loop through the set of top level definitions, compile the
+         *  initialization expressions and store their values in a funciton frame
+         */
+        for ( int i = 0; i < defns.length; ++i) {
+            defns[i].compileGlobals(a, globals);
+        }
+
+        a.emitEpilogue();
     }
 
     /** Declare storage for global variables.
@@ -57,6 +62,7 @@ public abstract class Defn {
     /** Generate compiled code for a function.
      */
     abstract void compileFunction(Assembly a, LocEnv globals);
-
-    abstract void compileGlobals(Assembly a, LocEnv globals, Frame f);
+    /** Generate compiled code for initializing globals
+     */
+    abstract void compileGlobals(Assembly a, LocEnv globals);
 }

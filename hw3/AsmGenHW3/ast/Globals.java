@@ -57,17 +57,20 @@ public class Globals extends Defn {
         // because Globals extends Defn.
     }
 
-    void compileGlobals(Assembly a, LocEnv globals, Frame f) {
+    /** Generate compiled code for the initGlobals function that retrieves 
+     *  and compiles the expression value from each global variable declaration
+     *  and stores those values in a global function frame
+     */ 
+    void compileGlobals(Assembly a, LocEnv globals) {
         int length = vars.length;
-        Expr[] exprArr = new Expr[length];
-
+        Frame f = new FunctionFrame( new Formal[0], globals);
+         
         for(int i = 0; i < length; ++i) {
-            exprArr[i] = vars[i].getExpr(); 
-        }
-
-        for(int i = 0; i < length; ++i) {
-            exprArr[i].compileExpr(a,f);
+            // Retrieve and compile expressions from the array of variables
+            vars[i].getExpr().compileExpr(a,f);
+            // Store the value  
             f.store32(a, vars[i].name);  
         }
+       
     }
 }

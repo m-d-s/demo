@@ -1,6 +1,11 @@
 // Here is a very simple program.
-int i = 1;
+int i = 4;
+int a = 4 * 3;
+int c = 0;
 void main() {
     print i;
-    print 42;
+    print a;
+    a = a + 1;
+    print a;
+    print c;
 }

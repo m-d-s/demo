@@ -72,6 +72,8 @@ public class VarIntro {
         // If no explicit initializer is given, initialize with zero:
         f.allocLocal(a, name, a.immed(0));
     }
-
+    
+    /** Return null since the is no initializing expression
+     */
     public Expr getExpr() { return null; }
 }
