@@ -64,12 +64,15 @@ public class Globals extends Defn {
     void compileGlobals(Assembly a, LocEnv globals) {
         int length = vars.length;
         Frame f = new FunctionFrame( new Formal[0], globals);
-         
+        //Expr e; 
         for(int i = 0; i < length; ++i) {
             // Retrieve and compile expressions from the array of variables
             vars[i].getExpr().compileExpr(a,f);
-            // Store the value  
-            f.store32(a, vars[i].name);  
+            //if( e != null) {
+              //   e.compileExpr(a,f);
+                 // Store the value  
+                 f.store32(a, vars[i].name);
+            //}  
         }
        
     }

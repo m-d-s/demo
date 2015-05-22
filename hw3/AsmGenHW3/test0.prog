@@ -1,11 +1,27 @@
 // Here is a very simple program.
-int i = 4;
-int a = 4 * 3;
-int c = 0;
-void main() {
-    print i;
-    print a;
-    a = a + 1;
-    print a;
-    print c;
+int a = 4;
+int b = 4 * 3;
+int c = a - b;
+int d = -c;
+//int e = d / c;         <--- Div not yet implemented
+//int f = a < b;         <--- Threw an error during static analysis "InitVarEntryType"
+//int g;                 <--- Threw an error during static analysis "GloblasInitialized"
+int h = -(a + b - c * d); 
+void main() {            //--Expected output-- | --Actual Output--//
+    print a;             //         4          |         4        //
+    print b;             //         12         |         12       // 
+    print c;             //         -8         |         -8       //
+    print d;             //         8          |         8        //
+    print h;             //         -80        |         -80      // 
+                         //                    |                  //
+    if(b > a) {          //                    |                  //
+        int b = 42;      //                    |                  //
+        print b;         //         42         |         42       //
+    }                    //                    |                  //
+                         //                    |                  //
+    print b;             //         12         |         12       //
+    a = a + 1;           //                    |                  //
+    b = b * c;           //                    |                  //
+    print a;             //         5          |         5        //
+    print b;             //         -96        |         -96      //
 }
