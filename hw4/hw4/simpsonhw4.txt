@@ -48,7 +48,7 @@ the same out of memory error that was being triggered without the presence of
 a garbage collecter.
 
 
-I would expect the above description of garbage collection behavior to hold for
+    I would expect the above description of garbage collection behavior to hold for
 all values of N and S such that the value of S was greater than the value of N, 
 and that the value of S was greater than the length of the object getting allocated.
 The value of S obviously needs to be greater than the length of the alocated
@@ -64,4 +64,117 @@ of garbage collection to be observed.
 
 2)
 
-       
+3)
+
+---a---
+
+    TestHeap3 allows us to observe both characteristics that were added in part two
+of this assignment. First you can see the behavior of the forward method being shown
+because before garbage collection the value of h.a is -96 and afterwards it gets
+"forwarded to -100. Since this is the first action taken in the garbage collect method,
+it does not come as a huge suprise. It does however show how the roots are the first
+objects to get copied and how that sets up the scavenge phase. 
+
+    Once all the roots have been copied (in this example there is only one), the 
+garbage collector will begin to scavenge the connected objects to add to the heap. It
+begins at index zero in the heap where the length of the first root will be, and then
+continues to scan each root until all connected objects have been copied from the source
+heap to the destination.
+
+    Once this process has completed, we can examine the resulting heap and see the bounty
+of our hard work. The heap is now neatly laid out beginning with all the root objects,
+and then followed by all other connected objects. All allocated memory is laid out
+contiguously starting at the initial address of the heap, and all free memory follows
+contiguously starting imediately following the last allocated word and continuing until
+the end of the heap. Also all objects that had been allocated but were not directly 
+referenced are now gone. Therefore through the copying garbage collector, we have
+similtainiously freed up more space and eliminated fragmentation from our heap.
+
+---b---
+
+    If we were to replace the root fields within the scope of the heap with simple
+external integer variables, you could simulate the same behavior that is displayed when
+building the heap. The trouble begins to arise when you try to collect garbage. The
+routine that we are using to perform garbage collection relies on the root fields
+within the scope of the Heap class.
+
+    If we had created an integer variable 't' inside the TestHeap3 program, when the
+garbage collector got called it would first reset the value of the heap pointer. Then
+it would continue by calling the forward method with each root variable. The root 
+variables are initialized to the value zero, and when the forward method recieves the
+value zero as its argument it simply returns that value. Therefore each call to forward
+would do absolutely nothing.
+
+    Next comes the scavenge stage of the copy collector. However this phase would never
+even get instantiated. Since no objects were forwarded, the heap pointer kept its value
+of zero. The while loop that surrounds the scavenge phase loops on the condition that 
+another integers value is less than the value of the heap pointer. Since they will both
+be equal to zero, that loop will never get entered. 
+
+    Finally, the source and destination heaps will get exchanged and as a result all
+objects will have been collected. You will have a completely empty heap instead of 
+achieving the goal of proper garbage collection. Therefore, though it may function
+normally to build the initial heap, utilization of the root fields is esential for
+this algorithm to work correctly.
+
+---c---
+
+    The garbage collector does not initialize the values of memory to zero once it has
+finished. Doing so could create serious optimization issues due to the cost of traversing
+large regions of memory every time the garbage collection routine gets ran. Therefore, in
+order to save time the value of the heap pointer gets reset and then the top updates when
+objects are added to the heap.
+
+When you allocate a new region of memory, the words in the object get reset to zero. This
+is less of a hit to optimization because we do this when we need the memory and only 
+initialize the values that we need. If we did not reinitialize these values a lot could
+potentially go wrong.
+
+    If you had previously deallocated a connected structure of objects, it would get 
+ignored during the garbage collection phase and not get added to the heap upon collection.
+However, the references in memory would still persist. When that heap eventually got 
+swapped back in as the primary heap, there is a chance that that same region of memory
+could get allocated. Without a routine to reinitialize the old memory to zero, the allocated
+regions could get interpereted as an active portion of the current structure.
+
+When the collector ran again, it may see these values as valid and copy them over as if they
+were part of the connected heap. Worse still, if a user referenced this memory it would
+either give them unrealistic data or much more likely just completely corrupt the data that
+they had accumulated on the heap.
+   
+4)
+
+---a---
+
+    * Altering the value of S without altering the value of N simply grows or shrinks the size 
+of the heap. If the value of S is decreased to be less than sixty five the program will crash
+when the garbage collector tries to run due to no available memory. 
+
+    * Increasing the value of N without altering the value of S will result in the program crashing
+due to no available memory while trying to allocate the thirteenth object. Decreasing N without
+altering the value of S will simply create less objects
+    
+    * Increasing both S and N will just create more object and a larger stack. If you increase
+the two at the same rate, the program will continue functioning in the same manner as it does 
+currently (assuming that the current process has enough memory to sustain the size of the heap). 
+Decreasing the values will have the inverse effect. The values of S and N must remain greater than
+zero.
+
+    * Altering both values independently will either result in the program running normally or in 
+a crash depending upon the values chosen for S and N. As a rule, for the program to continue to 
+function. The value of S must be greater than or equal to the sum of the integers from zero to N
+plus N.
+
+---b---
+
+    Calling garbageCollect in this program results in the connected structure of objects getting
+inverted. The last object that gets allocated becomes the first object in the heap, and vice
+versa the first becomes the last. It is somewhat analogous to reversing the order of a linked list.
+This occurs due to the fact that the call to the store method within the for loop swaps the 
+positions in which the root object and newly allocated object are placed. Therefore the value of
+h.a gets updated to the starting location of the most recently allocated object on every
+iteration of the loop. Then when the garbage collector gets called, it begins by forwarding the
+location of the root to the first index of the heap and then scavange does the rest of the work
+to invert the heap.
+
+---c--- 

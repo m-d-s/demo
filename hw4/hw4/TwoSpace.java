@@ -60,8 +60,7 @@ class TwoSpace extends Heap {
     }
     // set the index in the heap where the length was retrieved to point
     // to the address of the object in the copy space
-    heap[size + obj] = -((size - hp) + length + 1);
-    return heap[size + obj];
+    return heap[size + obj] = -((size - hp) + length + 1);
   }
 
   /** Scavenge an object in toSpace for pointers to reachable objects

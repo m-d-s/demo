@@ -1,5 +1,5 @@
 class TestHeap4 {
-  static final int S = 100;
+  static final int S = 65;
   static final int N = 10;
 
   public static void main(String[] args) {
@@ -19,5 +19,13 @@ class TestHeap4 {
     System.out.println("After garbage collection;");
     h.dump();
     System.out.println("Free space remaining = " + h.freeSpace());
+
+    h.garbageCollect();
+
+    System.out.println("After garbage collection;");
+    h.dump();
+    System.out.println("Free space remaining = " + h.freeSpace());
+ 
+
   }
 }
