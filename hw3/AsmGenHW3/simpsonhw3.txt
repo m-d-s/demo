@@ -585,3 +585,35 @@ would could be improved by two instructions if you simply did 'incl -8(%rsp)' fo
 is a complex instruction that takes more time than many others. Since 2 is a power of 2 (obviously),
 the same effect could be achieved by arithmetically shifting the value of the argument to the 
 left once. 
+
+I made patches in the assembly file to reflect these optimizations. When executing this code the
+output was identical to the output of the original assmebly. Here is a diff of the original 
+assembly and the patched version.
+
+    56,58c56,57
+    <   #movl   $1, %edi
+    <   #addl   %edi, %eax
+    <     incl    %eax
+    ---
+    >   movl    $1, %edi
+    >   addl    %edi, %eax
+    62c61
+    <     #movl    $10, %eax
+    ---
+    >   movl    $10, %eax
+    64,65c63
+    <     #cmpl    %eax,  %edi
+    <   cmpl    $10, %edi
+    ---
+    >   cmpl    %eax, %edi
+    102,106c100,102
+    <   #movl   $2, %eax
+    <   #movl   %edi, %esi
+    <   #imull  %esi, %eax
+    <     movl    %edi, %eax
+    <     sal     $1,   %eax
+    ---
+    >   movl    $2, %eax
+    >   movl    %edi, %esi
+    >   imull   %esi, %eax
+

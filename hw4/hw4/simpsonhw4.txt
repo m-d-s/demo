@@ -1,0 +1,67 @@
+Name: Michael Simpson
+Date: 05-30-15
+Course: 322
+Instructor: Jones
+Assignment: #4
+
+1)
+    The smallest value of N that will cause TestHeap2 to report an
+error that no more memory was available was 12. Since the length of each 
+object was eight, every object needed (length + 1) words to be stored. The
+pattern of object allocation thus follows as:
+
+      obj 0   |  obj 1  |  obj 2  |    |  obj 10
+    [-100,-92] [-91,-83] [-82,-74] .... [-10,-1]
+
+    By the time the eleventh object has been allocated there is only one word
+of memory left on the heap. That means that when the twelvth object attempts
+to be allocated, an out of memory error will be thrown. To visualize this 
+scenario, I altered TestHeap2 to execute allocation within a for loop.
+
+    public static void main(String[] args) {
+        for(int i = 0; i < 13; ++i) {
+             System.out.print("i = " + i);
+             test(i);
+             System.out.println();
+        }  
+    }
+
+    public static void test(int N) {
+        Heap h = Heap.make(S);
+        for (int i=0; i<N; i++) {
+          System.out.println("Allocating object " + i
+                           + " at address " + h.alloc(8));
+        }
+        h.dump();
+        System.out.println("Free space remaining = " + h.freeSpace());
+    }
+
+    This program failed while performing its last iteration, confirming the fact
+that 12 is the smallest value of N that will trigger an error.
+
+    If TestHeap2 included a functioning garbage collector, I would expect it to
+get executed when the twelvth object was attempting to be allocated. If the 
+collecter found any memory that was no longer being directly referenced, it could
+then free up some more space on the heap before continuing to allocate the twelvth
+object. However if it could not find any such memory, I would expect it to throw
+the same out of memory error that was being triggered without the presence of 
+a garbage collecter.
+
+
+I would expect the above description of garbage collection behavior to hold for
+all values of N and S such that the value of S was greater than the value of N, 
+and that the value of S was greater than the length of the object getting allocated.
+The value of S obviously needs to be greater than the length of the alocated
+object because if you tried to create data storage greater than the total amount
+of available memory the garbage collecter may never even need to run for the system
+to know that this request is not feasable. The value of S needs to at least be greater
+than the value of N because of the fact that each object uses the first word to store
+the length of that object. Therefor to even store an object of length one, you would
+at the very least need to have a heap of size two. The values of N and the lenght of
+the objects being allocated do not need to relate to one another for the behavior
+of garbage collection to be observed.
+
+
+2)
+
+       

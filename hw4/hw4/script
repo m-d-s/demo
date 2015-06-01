@@ -1,0 +1,52 @@
+Object at address -100, length=3, data=[0, 0, 0]
+Object at address -96, length=9, data=[-82, -70, 0, 0, 0, 0, 0, 0, 0]
+Object at address -86, length=3, data=[0, 0, 0]
+Object at address -82, length=5, data=[0, 0, 0, 0, 0]
+Object at address -76, length=5, data=[0, 0, 0, 0, 0]
+Object at address -70, length=4, data=[0, 0, 0, 0]
+Object at address -65, length=2, data=[0, 0]
+Heap allocation pointer: 38
+Free space remaining = 62
+Object at address -100, length=9, data=[-90, -84, 0, 0, 0, 0, 0, 0, 0]
+Object at address -90, length=5, data=[0, 0, 0, 0, 0]
+Object at address -84, length=4, data=[0, 0, 0, 0]
+Heap allocation pointer: 21
+Free space remaining = 79
+
+Allocating object 0 at address -100
+Allocating object 1 at address -98
+Allocating object 2 at address -95
+Allocating object 3 at address -91
+Allocating object 4 at address -86
+Allocating object 5 at address -80
+Allocating object 6 at address -73
+Allocating object 7 at address -65
+Allocating object 8 at address -56
+Allocating object 9 at address -46
+Before garbage collection;
+Object at address -100, length=1, data=[0]
+Object at address -98, length=2, data=[-100, 0]
+Object at address -95, length=3, data=[-98, 0, 0]
+Object at address -91, length=4, data=[-95, 0, 0, 0]
+Object at address -86, length=5, data=[-91, 0, 0, 0, 0]
+Object at address -80, length=6, data=[-86, 0, 0, 0, 0, 0]
+Object at address -73, length=7, data=[-80, 0, 0, 0, 0, 0, 0]
+Object at address -65, length=8, data=[-73, 0, 0, 0, 0, 0, 0, 0]
+Object at address -56, length=9, data=[-65, 0, 0, 0, 0, 0, 0, 0, 0]
+Object at address -46, length=10, data=[-56, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Heap allocation pointer: 65
+Free space remaining = 35
+After garbage collection;
+Object at address -100, length=10, data=[-89, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Object at address -89, length=9, data=[-79, 0, 0, 0, 0, 0, 0, 0, 0]
+Object at address -79, length=8, data=[-70, 0, 0, 0, 0, 0, 0, 0]
+Object at address -70, length=7, data=[-62, 0, 0, 0, 0, 0, 0]
+Object at address -62, length=6, data=[-55, 0, 0, 0, 0, 0]
+Object at address -55, length=5, data=[-49, 0, 0, 0, 0]
+Object at address -49, length=4, data=[-44, 0, 0, 0]
+Object at address -44, length=3, data=[-40, 0, 0]
+Object at address -40, length=2, data=[-37, 0]
+Object at address -37, length=1, data=[0]
+Heap allocation pointer: 65
+Free space remaining = 35
+
