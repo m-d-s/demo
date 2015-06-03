@@ -15,7 +15,7 @@ class TestHeap6 {
     System.out.println("Free space remaining = " + h.freeSpace());
     h.dump();
 
-    h.store(h.a, 3, h.alloc(4));
+    h.store(h.a, 3, h.alloc(1));
 
     h.dump();
     System.out.println("Free space remaining = " + h.freeSpace());

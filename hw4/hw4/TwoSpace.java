@@ -16,9 +16,7 @@ class TwoSpace extends Heap {
 
     // Forward any objects that are pointed to by a, b, c, or d.
     // These are the "roots" for our garbage collection.
-    System.out.println("\n" + a + "\n");
     a = forward(a);
-    System.out.println("\n" + a + "\n");
     b = forward(b);
     c = forward(c);
     d = forward(d);
@@ -74,7 +72,7 @@ class TwoSpace extends Heap {
     // Scan the fields in this object, using forward on
     // any pointer fields that we find to make sure the
     // objects that they refer to are copied into toSpace.
-    for(int i = 0; i < len; ++i) {
+    for(int i = 1; i <= len; ++i) {
         if(toSpace[obj + i] < 0) {
            toSpace[obj + i] = forward(toSpace[obj + i]);
         }
