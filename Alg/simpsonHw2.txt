@@ -1,0 +1,504 @@
+Name: Michael Simpson
+Date: 06-09-15
+Course: CS350
+Instructor: Bart Massey
+Assignment: 2
+
++---------------------+
+| FIRST LONG 1-STRING |
++---------------------+
+
+    INSTANCE: A one-based array A of n elements, with the elements drawn from the set {0, 1}. 
+        An integer lower bound m > 0.
+
+    SOLUTION: The index of the first position in A such that there is a string of m 1s starting
+        at that position. That is: a position i in A such that A[i..i+m] are all 1s and there is no 
+        position j < i in a with this property. If there is no string of m 1s in A, fail.
+
+    ALGORITHM:  
+        
+        beginningIdx <- 0
+        counter <- 0
+        for i <- 1 to n
+            if A[i] == 1
+                if counter == 0
+                    beginningIdx <- i
+                increment counter
+            else
+                counter <- 0
+            if m == counter
+                return beginningIdx
+        fail if the loop is exited
+
+    RUNTIME: Where 'n' is the length of the input array and array indexing as the fundamental operation,
+        this algorithm has complexity O(n) and Ω(1). The worst case occurs when the input array
+        contains no sequence of ones with length greater than or equal to m, or when the string of ones
+        occurs at A[(n-m)...n]. The best case occurs when a one occurs as the first element in the 
+        array and the value of m is one.
+
+    CORRECTNESS: Loop Invariant - A[1...i] does not contain a series of 'm' consecutive ones.
+    
+        Upon each iteration of the loop, the value of A[i] gets compared to one. Seeing a one sets the 
+        starting index and triggers the counter. The value of the counter gets compared to 'm', and if 
+        the values are equal the loop is terminated and the index value is returned. If a zero is
+        encountered before the value of the counter is equal to 'm' the counter gets reset to 0. If the
+        loop terminates naturally, the entire array has been checked for a sequence of 'm' consecutive
+        ones and none have been found. Therefore such a sequence does not exist and a failure is reported.
+
++----------------------+
+| 2 ARRAY INTERSECTION |
++----------------------+
+
+    INSTANCE: One-based arrays A and B of positive integers. Denote the size of A by |A| and similarly 
+        for B.
+
+    SOLUTION: A one-based array C of positive integers, such that C contains exactly one copy of each 
+        integer that appears somewhere in both A and B. Thus, |C| ≤ min(|A|, |B|).
+
+    ALGORITHM:
+        
+        sort A
+        sort B
+        for i <- 1 to |A|, j <- 1 to |B|
+            if A[i] < B[j]
+                increment i
+            else if A[i] > B[j]
+                increment j
+            else
+                append A[i] to C
+                while i < |A| & A[i+1] == A[i]
+                    increment i
+                while j < |B| & B[j+1] == B[j]
+                    increment j
+                increment i
+                increment j
+
+        return C
+        
+    RUNTIME: The sort routines can be executed with O(nlgn) complexity where 'n' is equal to the length
+        of 'A' and 'B' respectively. Looping through the arrays will be executed in linear time relative
+        to min(|A|,|B|). The fundamental operation of the for loop is array accesses, of which there will 
+        be at least four for every iteration of the for loop. The time taken to sort will dominate the 
+        runtime, therefore the complexity of the algorithm is O(|A|lg|A| + |B|lg|B|). 
+
+    CORRECTNESS: Loop invarient - 'C' contains a single copy of any element shared between A[1...i] and
+                 B[1...j].
+
+        Upon entry of the for loop both arrrays 'A' and 'B' will be sorted and C will be empty. Since no 
+        iterations have been executed the invarient holds. If A[i] and B[j] are unequal the index of the 
+        array containing the lesser element will be incremented. Since the two arrays are sorted, the value 
+        of the element contained within the incremented index will either be equal to or nearer to that
+        of the other arrays currently indexed element. Upon finding an element that matches in both arrays,
+        that element gets appended to 'C'. To ensure that duplicate elements do not get inserted into 'C',
+        look ahead while loops skip any duplicated elements in both 'A' and 'B'. Both while loops are
+        guaranteed to terminate since all they do is increment a variable whose value is tested against that
+        of a constant positive value. As soon as 'i' exceeds |A|, or 'j' exceeds |B| the outer loop will 
+        terminate since there is no possible way for any further matches to be made. Upon termination, 'C' 
+        contains a single copy of every element in common between 'A' and 'B'. 
+        
+
++----------------------+
+| N ARRAY INTERSECTION |
++----------------------+
+
+
+    INSTANCE: One based array G of |G| one based arrays of positive integers, where |G| is the size of G and
+    |G[i]| (1 <= i <= |G|) is the size of each indepenent element of G.  
+
+    SOLUTION: A one-based array C of positive integers, such that C contains exactly one copy of each 
+        integer that appears in each G[i].
+
+    ALGORITHM:
+        for i <- 1 to |G|
+            index the shortest array encountered as G[short]
+        for i <- 1 to |G|
+            if i != short
+                sort G[i]
+        for i <- 1 to |G[short]|
+            match <- true
+            for j <- 1 to |G|
+                if j != short
+                    if no binary search match in G[j] for G[short][i]
+                        match <- false
+                        j <- |G| + 1
+            if match == true
+                if no linear search C for G[short][i]
+                    append G[short][i] to C
+        return C
+                         
+    RUNTIME: The complexity of initial seach for the shortest array can be computed as O(|G|). The sorting routine
+        can will be calculated as O(∑|G[i]|lg|G[i]|) for 0 < i < |G|. The searching routine will run at 
+        O(∑|G[short]|^2lg|G[i]|) for 0 < i < |G|. Resulting in a O(∑|G[short]|^2lg|G[i]| + ∑|G[i]|lg|G[i]|)
+        for 0 < i < |G| complexity for the algorithm.
+ 
+    CORRECTNESS: The first loop iterates over all arrays in G to find an array with the shortest reported length.
+        This ensures that we only check the fewest amount of values during the entire routine since the length of
+        C will never exceed the length of the shortest array in G. The second loop iterates over all arrays, and
+        sorts each one except for the shortest that was found in the first loop. Sorting the arrays allows for a
+        binary search on each array in the next part of the routine. 
+
+        The final looping behaviour begins by looping through every element of the shortest array in G, each element
+        is searched in every other array in G. If an array is found that does not contain a particular element, the
+        search for that element is aborted since it cannot be in the intersection of every array. If after the inner
+        loop terminates, the value of 'match' is still true then that element is part of the intersection. It's value
+        is then searched linearly in 'C'. If the element is not present in C, it gets added to C.
+     
+
++--------------------------------------+
+| 2 ARRAY INTERSECTION  IMPLEMENTATION |
++--------------------------------------+
+
+    ***************************
+    **** Intersection.java ****
+    ***************************
+
+        import java.util.Arrays;
+        import java.util.ArrayList;
+        import java.util.Iterator;
+
+        public class Intersection {
+            Integer [] A,
+                       B;
+            Integer lenA,
+                    lenB;
+
+            /** Using an ArrayList here because it makes testing easier. Could have
+              * made this work using an array but it would have taken more time and
+              * added complexity. The runtime of the add routine is O(1), which is
+              * the same as it would have been if I had inserted into an array so I
+              * did not think using it would be an issue
+              */
+            ArrayList<Integer> C;
+
+            public Intersection(Integer[] A, Integer[] B) {
+                this.A = A;
+                this.B = B;
+                lenA = A.length;
+                lenB = B.length;
+            }
+
+
+            // This is the method that contains the algorithm for taking the intersection of two arrays
+            public void execute() {
+
+                long startTime, endTime;
+                C = new ArrayList<Integer>();
+                
+                startTime = System.currentTimeMillis();
+                Arrays.sort(A); //O(|A|lg|A|) source:http://docs.oracle.com/javase/7/docs/api/java/util/Arrays.html#sort(byte[])
+                Arrays.sort(B); //O(|B|lg|B|)
+                endTime = System.currentTimeMillis();
+                
+                System.out.println("Time taken to sort: " + (endTime-startTime) + "ms");
+
+                startTime = System.currentTimeMillis();
+                for(int i = 0, j = 0; i < lenA && j < lenB; ) {
+                    if(A[i] < B[j]) {
+                        ++i;
+                    } else if (A[i] > B[j]) {
+                        ++j;
+                    } else {
+                        C.add(A[i]); //O(1) source: http://infotechgems.blogspot.com/2011/11/java-collections-performance-time.html
+                        while( i < (lenA - 1) && A[i+1] == A[i] ) {
+                            ++i;
+                        }
+                         while( j < (lenB - 1) && B[j+1] == B[j] ) {
+                            ++j;
+                        }
+                        ++i;
+                        ++j;
+                    }
+                }
+                endTime = System.currentTimeMillis();
+                System.out.println("Time taken to intersect: " + (endTime-startTime) + "ms");
+            }
+            
+            // Using a pretty simplistic method for measuring the runtime of the algorithm, 
+            public void benchmark() {
+                long startTime = System.currentTimeMillis();
+                this.execute();
+                long endTime = System.currentTimeMillis();
+                System.out.println("Total execution time: " + (endTime-startTime) + "ms");
+            }
+
+            public void test(Integer[] expected, boolean result ) {
+                Integer[] intersection = C.toArray(new Integer[C.size()]);
+                System.out.print("Intersection test: ");
+                if(result == Arrays.equals(expected, intersection)){
+                    System.out.println("Test Successful\n");
+                } else {
+                    System.out.println("***Test Failure***\n");
+                }
+            }
+
+            public void setA(Integer[] A){
+                this.A = A;
+                this.lenA = A.length;
+            }
+
+            public void setB(Integer[] B) {
+                this.B = B;
+                this.lenB = B.length;
+            }
+
+        } 
+
+
+    *******************
+    **** Main.java ****
+    *******************
+
+        class Main {
+
+            public static void main(String[] args) {
+                Integer[][] arrays = new Integer[3][];
+                arrays[0] = new Integer[] {1, 2, 3, 4, 5, 6, 7};
+                arrays[1] = new Integer[]{9, 9, 10, 11, 7};
+                arrays[2] = new Integer[]{7};
+
+                Intersection obj = new Intersection(arrays[0], arrays[1]);
+
+                someTests(obj, arrays);
+            }
+
+            // boolean parameter expected denotes whether the test is expected to pass or fail
+            public static void routine(Intersection object, Integer []test, boolean expected) {
+                object.benchmark();
+                object.test(test, expected);
+            }
+
+            public static void reset(Intersection object, Integer []A, Integer []B) {
+                object.setA(A);
+                object.setB(B);
+            }
+
+            public static Integer[] fillDecreasing(Integer size){
+                Integer[] A = new Integer[size];
+
+                for(int i = size - 1; i >= 0; --i) {
+                    A[i] = i;
+                }
+                return A;
+            }
+
+            public static Integer[] fillIncreasing(Integer size){
+                Integer[] A = new Integer[size];
+
+                for(int i = 0; i < size; ++i) {
+                    A[i] = i;
+                }
+                return A;
+            }
+
+            public static Integer[] fillFewUnique() {
+                Integer[] A = new Integer[1000000];
+
+                for(int i = 0; i < 1000000; ++i) {
+                    if(0 == i%5) {
+                        A[i] = 5;
+                    } else if(0 == i%4){
+                        A[i] = 4;
+                    } else if (0 == i%3) {
+                        A[i] = 3;
+                    } else if (0 == i%2) {
+                        A[i] = 2;
+                    } else {
+                        A[i] = 1;
+                    }
+                }
+                return A;
+            }
+
+            public static Integer[][] lastInCommon() {
+                Integer[][] arrays = new Integer[3][];
+                arrays[0] = new Integer[1000000];
+                arrays[1] = new Integer[1000000];
+                arrays[2] = new Integer[] {2000000};
+
+                for(int i = 0; i < 2000000; ++i){
+                    if(i < 999999) {
+                        arrays[0][i] = i;
+                    } else if(i == 999999) {
+                        arrays[0][i] = 2000000;
+                    } else if(i < 1999999) {
+                        arrays[1][i - 1000000] = i;
+                    } else {
+                        arrays[1][i - 1000000] = 2000000;
+                    }
+                }
+                return arrays;
+            }
+
+            public static Integer[][] firstInCommon() {
+                Integer[][] arrays = new Integer[3][];
+                arrays[0] = new Integer[1000000];
+                arrays[1] = new Integer[1000000];
+                arrays[2] = new Integer[] {0};
+
+                for(int i = 0; i < 2000000; ++i){
+                    if(0 < i && i < 1000000) {
+                        arrays[0][i] = i;
+                    } else if(1000000 < i && i < 2000000) {
+                        arrays[1][i - 1000000] = i;
+                    } else if(i == 0) {
+                        arrays[0][i] = 0;
+                    } else {
+                        arrays[1][i - 1000000] = 0;
+                    }
+                }
+                return arrays;
+            }
+
+            public static Integer[][] fill(Integer toFill) {
+                Integer[][] arrays = new Integer[3][];
+                arrays[0] = new Integer[1000000];
+                arrays[1] = new Integer[1000000];
+                arrays[2] = new Integer[] {toFill};
+
+                for(int i = 0; i < 2000000; ++i){
+                    if(i < 1000000) {
+                        arrays[0][i] = toFill;
+                    } else  {
+                        arrays[1][i - 1000000] = toFill;
+                    }
+                }
+                return arrays;
+            }
+
+
+            public static void someTests(Intersection object, Integer[][] arrays) {
+                //Intersection of A and B contains only seven
+                routine(object, arrays[2], true);
+
+                //Intersection of two empty sets is the empty set
+                arrays[0] = arrays[1] = arrays[2] = new Integer[]{};
+                reset(object, arrays[0], arrays[1]);
+                routine(object, arrays[2], true);
+
+                /** Intersection of an empty set and a the set of one million decreasing consecutive integers
+                  * is the empty set
+                  */
+                arrays[0] = fillDecreasing(10000000);
+                object.setA(arrays[0]);
+                routine(object, arrays[2], true);
+
+                /** Intersection of a set of one million decreasing consecutive integers and five hundred and
+                  * one consecutive increasing integers (0 - 500) is not five hundered consecutive increasing
+                  * integers (0 - 499).
+                  */
+                arrays[1] = fillIncreasing(501);
+                object.setB(arrays[1]);
+                arrays[2] = fillIncreasing(500);
+                routine(object, arrays[2], false);
+
+                /** Intersection of identical sets with reversed order is the same set.
+                  * Majority of runtime will be dedicated to taking the intersection.
+                  */
+                arrays[0] = fillIncreasing(5000000);
+                arrays[1] = fillDecreasing(5000000);
+                reset(object, arrays[0], arrays[1]);
+                routine(object, arrays[1], true);
+
+                /**  Intersection of two identical sets containing many repeat integers. Should take a long
+                  *  time to sort.
+                  */
+                arrays[0] = fillFewUnique();
+                arrays[1] = fillFewUnique();
+                reset(object,arrays[0], arrays[1]);
+                routine(object, arrays[1], false);
+
+                /** Intersection of two large arrays where the only element in common is the last element.
+                 */
+                arrays = lastInCommon();
+                reset(object, arrays[0], arrays[1]);
+                routine(object, arrays[2], true);
+
+                /** Intersection of two large arrays where the only element in common is the first element.
+                 */
+                arrays = firstInCommon();
+                reset(object, arrays[0], arrays[1]);
+                routine(object, arrays[2], true);
+
+                /** Intersection of two large arrays where every element is identical.
+                 */
+                arrays = fill(-42);
+                reset(object, arrays[0], arrays[1]);
+                routine(object, arrays[2], true);
+
+                /** Intersection of two large arrays where every element is identical and negative.
+                 */
+                arrays = fill(-5);
+                reset(object, arrays[0], arrays[1]);
+                routine(object, arrays[2], true);
+
+            }
+        }
+   ***************************************
+   * RUNTIME AND CORRECTNESS TEST OUTPUT *
+   ***************************************
+        
+        /** The runtime of my algorithm varied quite drastically based on the size, contents, and order
+          * of the input. The quickest total ran at 1ms (which could be chalked up to overhead) on small
+          * input instances. The slowest total ran at 218ms due partially to large arrays, but mainly on
+          * the fact that I had few unique elements in alternating order which basically destroyed 
+          * quicksort's runtime. The slowest time taken for an intersection was 83ms, which was due to 
+          * having fairly large arrays that contained identical sets. The testing on my runtime could have
+          * been somewhat more structured. However, if there is one thing I have learned from this exercise it 
+          * is that it is can be fairly difficult to predict runtime on real systems.
+          *
+          * For my correctness testing I designed the testing routine to take an expected output array, and
+          * an expectation of success based on the equality of the expected and real outputs. Every one of
+          * the tests I ran generated the expected output and passed.
+          */
+
+        Time taken to sort: 1ms
+        Time taken to intersect: 0ms
+        Total execution time: 1ms
+        Intersection test: Test Successful
+
+        Time taken to sort: 0ms
+        Time taken to intersect: 0ms
+        Total execution time: 0ms
+        Intersection test: Test Successful
+
+        Time taken to sort: 24ms
+        Time taken to intersect: 0ms
+        Total execution time: 24ms
+        Intersection test: Test Successful
+
+        Time taken to sort: 19ms
+        Time taken to intersect: 1ms
+        Total execution time: 20ms
+        Intersection test: Test Successful
+
+        Time taken to sort: 22ms
+        Time taken to intersect: 83ms
+        Total execution time: 105ms
+        Intersection test: Test Successful
+
+        Time taken to sort: 218ms
+        Time taken to intersect: 13ms
+        Total execution time: 231ms
+        Intersection test: Test Successful
+
+        Time taken to sort: 3ms
+        Time taken to intersect: 6ms
+        Total execution time: 9ms
+        Intersection test: Test Successful
+
+        Time taken to sort: 7ms
+        Time taken to intersect: 5ms
+        Total execution time: 12ms
+        Intersection test: Test Successful
+
+        Time taken to sort: 4ms
+        Time taken to intersect: 2ms
+        Total execution time: 6ms
+        Intersection test: Test Successful
+
+        Time taken to sort: 3ms
+        Time taken to intersect: 2ms
+        Total execution time: 5ms
+        Intersection test: Test Successful
+
+

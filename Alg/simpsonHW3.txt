@@ -1,0 +1,100 @@
+Name: Michael Simpson
+Date: 06-19-15
+Course: CS350
+Instructor: Bart Massey
+Assignment: 3
+
++---------------------------------------------------------------------------------------------------+
+| MULTIPLE-ELEMENT HEAP (MEH) EXTRACTION                                                            |
+|                                                                                                   |
+| INSTANCE: A priority heap H of n elements. An extraction count m ≤ n.                             |
+|                                                                                                   |
+| SOLUTION: An array containing the best m elements extracted from H, together with the modified H. |
++---------------------------------------------------------------------------------------------------+
+
+
++----------------------------+
+| BRUTE FORCE MEH COMPLEXITY |
++----------------------------+
+    
+    BRUTE-FORCE MEH
+        a ← new array of m elements
+        for i ← 1 .. m
+           (a[i], H) ← extract-best(H)
+        return (a, H)
+
+    The runtime complexity of the brute-force MEH is O(mlgn) where m is the number of best elements to be extracted 
+    from the heap, and n is the size of the heap. The allocation of array of a will be executed in constant time.
+    The for loop iterates exatly m times, and extract-best(H) is called on each iteration of the loop. The procedure
+    to extract the best element from the heap is as follows:
+        
+        EXTRACT-BEST
+            save root
+            replace root with rightmost bottom element
+            downheap from root
+            return r
+
+        DOWNHEAP
+            if parameter is a leaf, return
+            if parameter is better than both children, return
+            swap parameter with best of either of it's children
+            recursive call with same parameter
+
+    All steps in extract-best can be executed in constant time except for downheap. For each call of the downheap
+    function, the algorithm either recognizes that the element is in the correct postion or it will get exchanged
+    with one of it's children and the next recursive call will be made. The definition of a heap guarantees that
+    the tree will be complete and as a result will maintain a height of lg(n) where n is the number of elements in
+    the heap. Knowing this, you can easily see that upon each iteration the recursion will decend the tree by one
+    level and that the maximum amount of times this can occur is floor(lg(n)). Thus, the runtime of downheap is O(lgn)
+    
+    Combining the facts that the for loop within brute-force MEH will iterate exactly m times, that extract-best has a
+    worst case runtime of O(lgn) and gets called during each iteration and that all other operations will be executed
+    in constant time shows that the complexity of brute-force MEH is O(mlgn).
+
+
++--------------------------------------------------------+
+| RUNTIME ANALYSIS OF MERGESORT USING THE MASTER THEOREM |
++--------------------------------------------------------+
+    
+    The asymptotic worst-case running time for Mergesort is given by the following reccurrance:
+   
+    T[0] = 1
+    T[1] = 1
+    T[n] = T[n/2] + T[n/2] + O(n)            
+
+    T[n] can also be written as:
+
+    T[n] = 2T[n/2] + O(n)
+
+    Using this form, you can see that there are two subproblems in the recursion. The number of subproblems gets mapped
+    to the value of a. For each of the subproblems, one gets called on the upper half of the range of n, and one gets called
+    on the lower. The proportion of the range of n gets mapped to b. The O(n) applies to the merge routine that occurs after
+    the two recursive calls. Therefore a = 2, b = 2, and f(n) is linear. Also note that log based b of a equals 1.
+
+    Case 1:
+
+        For this case to hold, f(n) would need to have time complexity O(n^c) where c < log based b of a. Since we know that
+        f(n) is linear and we also know that log based b of a is 1, that would mean that c would be less than 1. Raising 
+        n to a power less than one results in a value less than n, therefore the runtime of mergesort cannot be described
+        using this case of the master theorem.
+
+    Case 2:
+
+        For this case to hold, f(n) would need to have time complexity Θ(n^c*log^k n) where k >= 0 and c = log based b of a.
+        If you set k equal to zero the expression becomes n^1*log^0n. Anything raised to the power of zero is equal to one,
+        and anything raised to the power of one is equal to it's self. This results in linear performance, and is exactly
+        the performance of f(n). Therefore this case is a likely cantidate for describing the runtime of mergesort.
+
+    Case 3:
+
+        For the first part of this case to hold, f(n) would need to have Ω(n^c) where c > log based b of a. We already know 
+        that f(n) is linear, and that log based b of a is one. Since c would need to be greater than one, that would mean
+        that n^c > n. As the case states that the lower bound would need to be n^c, this is of course impossible given the
+        merge function is linear. There is a second part of this case, but for the entire case to hold both parts need to 
+        be true. Since the first part was already disproven, it is unessecary to continue. The runtime of mergesort cannot be
+        described using this case of the master theorem.
+
+    After applying each case of the master theorem, it was shown that only case 2 was able to hold. Since case 2 holds that 
+    means that the running time of merge sort is equal to Θ(n^c*log^k+1 n), which is equal to Θ(n^1*log^1 n), which is equal
+    to Θ(nlogn). Theta time complexity defines both a tight upper and lower bound on runtime, therefore mergesort is within 
+    O(nlgn). 
