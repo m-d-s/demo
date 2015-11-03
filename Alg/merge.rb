@@ -20,8 +20,8 @@ class Merge
     if p < r
       (p..q).each { |i| left << @to_sort[i] }
       (q+1..r).each { |i| right << @to_sort[i] }
-      left << 4000;
-      right << 4000;
+      left << 2**(32-1) - 1;
+      right << 2**(32-1) - 1;
       i = p
       x = 0
       y = 0
